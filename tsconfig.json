@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "types": ["node","express"],
+      "typeRoots": ["./src/types", "./node_modules/@types"],
+      "target": "es2017",
+      "module": "commonjs",
+      "outDir": "./dist",
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true
+    },
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules"]
+  }

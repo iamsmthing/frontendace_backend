@@ -1,0 +1,2 @@
+export { posts,comments,commentRelations,postRelations,postTagRelations,postTags,tagRelations,tags,upvotes,upvoteRelations,userPostCommentRelations } from "./posts-schema";
+export {users,challenges,userProgress,userRelations,challengeRelations,userProgressRelations} from './schema'

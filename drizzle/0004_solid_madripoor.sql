@@ -1,0 +1,1 @@
+ALTER TABLE "user_progress" ALTER COLUMN "challenge_id" SET DATA TYPE text;
