@@ -28,8 +28,8 @@ export const posts = pgTable("posts", {
     postId: text("post_id")
       .references(() => posts.id, { onDelete: "cascade" })
       .notNull(), // References the associated post
-    createdAt: timestamp("created_at", { mode: "string" }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { mode: "string" }).notNull().defaultNow(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
     postIdIdx: index("comments_post_id_idx").on(table.postId), // Index on postId
@@ -148,6 +148,9 @@ export const postTags = pgTable("post_tags", {
     parent: one(comments, {
       fields: [comments.parentCommentId],
       references: [comments.id],
+      relationName: "parent_comment",  // ✅ Name the relation
     }), // A comment can have a parent comment
-    replies: many(comments), // A comment can have multiple replies
+    replies: many(comments,{
+      relationName: "parent_comment", // ✅ Use the same name for the inverse relation
+    }), // A comment can have multiple replies
   }));

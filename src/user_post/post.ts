@@ -2,12 +2,19 @@ import {db} from '../db/drizzle';
 import {challenges, userProgress,} from '../db/schema/schema';
 import {v4 as uuidv4} from 'uuid';
 import { Request,Response } from 'express';
-import { and, asc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq } from 'drizzle-orm';
 import { error } from 'console';
 import { posts } from '../db/schema';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import 'dotenv/config';
-import { decode } from 'punycode';
+import cloudinary from 'cloudinary';
+
+
+cloudinary.v2.config({ 
+  cloud_name: process.env.CLOUD_NAME!, 
+  api_key: process.env.API_KEY!, 
+  api_secret: process.env.API_SECRET! 
+});
 
 export const createPost = async (req:Request, res:Response) => {
   try {
@@ -59,7 +66,8 @@ export const updatePost = async (req:Request, res:Response) => {
       const tokenUserId=extractUserId(req,res);
   
       const deletedPost = await db.delete(posts).where(and(eq(posts.id,id) , eq(posts.userId,tokenUserId))).returning();
-      console.log(deletedPost)
+      const {imageUrl}=deletedPost[0];
+      if(imageUrl) await removeFromCloudinary(imageUrl!);
   
       if (deletedPost.length==0) {
         console.log(res.status)
@@ -79,14 +87,14 @@ export const updatePost = async (req:Request, res:Response) => {
         with: {
           user: {
             columns:{
-                password:false
+                password:false,
             }
           },
           comments: true,
           tags: { with: { tag: true } },
           upvotes: true,
         },
-        orderBy:[asc(posts.createdAt)]
+        orderBy:[desc(posts.createdAt)]
       });
   
       return res.status(200).json(postsData);
@@ -114,4 +122,18 @@ export const extractUserId=(req:Request,res:Response)=>{
     return res.status(401).json({ error: 'Unauthorized: Invalid token' });
   }
   
+}
+
+export const removeFromCloudinary = async (imageUrl: string) => {
+  try {
+    const publicId = imageUrl.split('/').slice(-1)[0].split('.')[0];
+    const result = await cloudinary.v2.api.resource(publicId);
+    console.log(publicId,result)
+    console.log(JSON.stringify(result));
+    const res = await cloudinary.v2.uploader.destroy(publicId);
+    console.log("Delete response:", res);
+    return res;
+  } catch (error) {
+    console.error("Error:", error);
+  }
 }

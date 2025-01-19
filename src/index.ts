@@ -110,12 +110,147 @@ export function AuthProvider({ children }) {
   }
 ]
 
+
+const peerData=[
+  {
+      id: '1',
+      title: "Redesign Landing Page",
+      description: "Complete redesign of our company's landing page",
+      assignee: "Alice Johnson",
+      avatarUrl: "/placeholder.svg?height=40&width=40",
+      status: "Pending Review",
+      progress: 75,
+      screenshot: "https://res.cloudinary.com/dtzsujhps/image/upload/v1737098984/j8nerxgoz7vh56o02vmm.webp",
+      code: `
+  import React from 'react';
+  
+  const LandingPage = () => {
+    return (
+      <div className="landing-page">
+        <header>
+          <h1>Welcome to Our Company</h1>
+          <nav>{/* Navigation items */}</nav>
+        </header>
+        <main>
+          <section className="hero">
+            <h2>Transform Your Business with Our Solutions</h2>
+            <button>Get Started</button>
+          </section>
+          {/* More sections */}
+        </main>
+        <footer>{/* Footer content */}</footer>
+      </div>
+    );
+  };
+  
+  export default LandingPage;
+      `
+    },
+    {
+      id: '2',
+      title: "Implement User Authentication",
+      description: "Add secure user authentication to the platform",
+      assignee: "Bob Smith",
+      avatarUrl: "/placeholder.svg?height=40&width=40",
+      status: "Pending Review",
+      progress: 50,
+      screenshot: "/placeholder.svg?height=300&width=500",
+      code: `
+  import { useState } from 'react';
+  import { signIn } from 'next-auth/react';
+  
+  const LoginForm = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+  
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      await signIn('credentials', { email, password });
+    };
+  
+    return (
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          required
+        />
+        <button type="submit">Log In</button>
+      </form>
+    );
+  };
+  
+  export default LoginForm;
+      `
+    },
+    {
+      id: '3',
+      title: "Optimize Database Queries",
+      description: "Improve performance of key database queries",
+      assignee: "Charlie Brown",
+      avatarUrl: "/placeholder.svg?height=40&width=40",
+      status: "Approved",
+      progress: 100,
+      screenshot: "/placeholder.svg?height=300&width=500",
+      code: `
+  
+  
+  async function getUsers() {
+    const client = await pool.connect();
+    try {
+      const result = await client.query('SELECT * FROM users WHERE active = true');
+      return result.rows;
+    } finally {
+      client.release();
+    }
+  }
+  
+  async function getUserPosts(userId) {
+    const client = await pool.connect();
+    try {
+      const result = await client.query(
+        'SELECT p.* FROM posts p JOIN users u ON p.user_id = u.id WHERE u.id = $1',
+        [userId]
+      );
+      return result.rows;
+    } finally {
+      client.release();
+    }
+  }
+  
+  module.exports = { getUsers, getUserPosts };
+      `
+    },
+]
+
+
 // Route to fetch a project by id
 app.get("/api/project/:id", (req, res) => {
     const { id } = req.params;
   
     // Find the project by ID
     const project = projectsData.find((p) => p.id === id);
+  
+    if (!project) {
+      return res.status(404).json({ error: "Project nott found" });
+    }
+  
+    return res.json(project);
+  });
+  app.get("/api/peer/:id", (req, res) => {
+    const { id } = req.params;
+  
+    // Find the project by ID
+    const project = peerData.find((p) => p.id === id);
   
     if (!project) {
       return res.status(404).json({ error: "Project nott found" });
