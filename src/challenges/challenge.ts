@@ -6,10 +6,17 @@ import { and, eq } from 'drizzle-orm';
 import { error } from 'console';
 
 
+const difficultyScores: Record<string, number> = {
+  "Easy": 10,
+  "Medium": 20,
+  "Hard": 30,
+};
+
 export const createChallenge=async(req:Request,res:Response)=>{
     try {
         const {title,difficulty,category,description,hints}=req.body;
-        const newChallenge = await db.insert(challenges).values({id:uuidv4(),title,difficulty,category,description,hints}).returning();
+        const score = difficultyScores[difficulty] || 0;
+        const newChallenge = await db.insert(challenges).values({id:uuidv4(),title,difficulty,category,description,hints,score}).returning();
         return res.json(newChallenge);
       } catch (error) {
         return res.json({ error: error });
@@ -36,6 +43,7 @@ export const bulkCreateChallenges = async (req: Request, res: Response) => {
             category: challenge.category, 
             description: challenge.description,
             hints: challenge.hints,
+            score:difficultyScores[challenge.difficulty] || 0
         }));
 
         // Insert all challenges at once
