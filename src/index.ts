@@ -6,6 +6,7 @@ import { bulkCreateChallenges, createChallenge, deleteChallenge, getChallengeByI
 import challengeRouter from './routes/challenge-progress';
 import postRouter from './routes/post-router';
 import { shield } from './auth/auth';
+import reviewRouter from './routes/review-router'
 
 const app=express();
 const port=process.env.PORT || 3002;
@@ -262,6 +263,8 @@ app.get("/api/project/:id", (req, res) => {
 
 app.use('/v1/api',shield,challengeRouter)
 app.use('/v1/api/post',shield,postRouter)
+
+app.use('/v1/api/review',shield,reviewRouter)
 
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`);

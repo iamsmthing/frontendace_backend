@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const review_1 = require("../peer-reviews/review");
+const router = (0, express_1.Router)();
+router.post('/submitChallenge', review_1.submitChallengeForReview);
+router.get('/getPendingReviews', review_1.getPendingPeerReviews);
+router.get('/getPendingReview/:id', review_1.getPendingPeerReviewById);
+router.post('/submitPeerReview', review_1.submitPeerReview);
+router.get('/getChallengeReviewsOfUser', review_1.getChallengeReviewsOfUser);
+exports.default = router;

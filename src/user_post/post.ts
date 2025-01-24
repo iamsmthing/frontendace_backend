@@ -115,7 +115,6 @@ export const extractUserId=(req:Request,res:Response)=>{
     const token = authHeader.split(' ')[1];
      // Verify the token and extract the payload
      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-     console.log(decoded);
      return decoded.id;
   } catch (error) {
     console.error('Error verifying token:', error);
