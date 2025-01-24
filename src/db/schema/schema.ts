@@ -67,6 +67,7 @@ export const challenges = pgTable('challenges', {
     description: text('description').notNull(),
     hints: text('hints').array(),
     score: integer('score'), // Predefined score based on difficulty
+    
   });
   
 
@@ -78,9 +79,22 @@ export const userProgress = pgTable("user_progress", {
     isCompleted: boolean("is_completed").default(false).notNull(),
     completedAt: timestamp("completed_at"), // nullable, only filled when completed
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    code: text("code"), // Stores the submitted code
+    imageUrl: text("image_url"), // Screenshot of completed challenge
   });
 
 
+
+
+export const peerReviews=pgTable("peer_reviews",{
+    id:text("id").primaryKey(),
+    challengeId: text("challenge_id").references(() => challenges.id, { onDelete: 'cascade' }).notNull(),
+    reviewerId: text("reviewer_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+    userProgressId: text("user_progress_id").references(() => userProgress.id, { onDelete: 'cascade' }).notNull(),
+    comment: text("comment"),
+    isApproved: boolean("is_approved").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+})  
 
 
   // ---------------- USERS RELATIONS ----------------
@@ -90,6 +104,7 @@ export const userProgress = pgTable("user_progress", {
     scores:many(userScores), // Relation to the user's scores
     badges:many(userBadges), // Relation to the user's badges
     leaderboardSnapshots:many(leaderBoardSnapshots), // Relation to the user's leaderboard snapshots
+    peerReviews:many(peerReviews), // Relation to the user's peer reviews
   }))
 //   Explanation:
 
@@ -138,7 +153,8 @@ export const userScoreRelations=relations(userScores,({one})=>({
   // ---------------- CHALLENGES RELATIONS ----------------
 
   export const challengeRelations=relations(challenges,({many})=>({
-    progress:many(userProgress) // A challenge can have multiple progress entries
+    progress:many(userProgress), // A challenge can have multiple progress entries
+    peerReviews:many(peerReviews)
   }))
 
 //   Explanation:
@@ -151,7 +167,7 @@ export const userScoreRelations=relations(userScores,({one})=>({
 
 
   // ---------------- USER PROGRESS RELATIONS ----------------
-  export const userProgressRelations = relations(userProgress, ({ one }) => ({
+  export const userProgressRelations = relations(userProgress, ({ one,many }) => ({
     user: one(users, {
       fields: [userProgress.userId], // Maps userId in userProgress
       references: [users.id],  // References id in users table
@@ -160,6 +176,7 @@ export const userScoreRelations=relations(userScores,({one})=>({
       fields: [userProgress.challengeId], // Maps challengeId in userProgress
       references: [challenges.id], // References id in challenges table
     }),
+    peerReviews:many(peerReviews)
   }));
 
 
@@ -176,6 +193,23 @@ export const userScoreRelations=relations(userScores,({one})=>({
 //   challenge Relation:
 //       Maps the challengeId in the userProgress table to the id in the challenges table.
 //       Uses the one keyword because each progress record belongs to exactly one challenge.
+
+
+    // Peer Review relations
+    export const peerReviewRelations = relations(peerReviews, ({ one }) => ({
+      challenge: one(challenges, {
+          fields: [peerReviews.challengeId],
+          references: [challenges.id],
+      }),
+      reviewer: one(users, {
+          fields: [peerReviews.reviewerId],
+          references: [users.id],
+      }),
+      userProgress: one(userProgress, {
+          fields: [peerReviews.userProgressId],
+          references: [userProgress.id],
+      }),
+    }));
 
 
 

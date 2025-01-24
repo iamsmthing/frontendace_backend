@@ -127,6 +127,27 @@
       "when": 1737044214431,
       "tag": "0017_flippant_nova",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1737284318185,
+      "tag": "0018_plain_firebrand",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1737284376718,
+      "tag": "0019_moaning_infant_terrible",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1737290105699,
+      "tag": "0020_oval_trish_tilby",
+      "breakpoints": true
     }
   ]
 }

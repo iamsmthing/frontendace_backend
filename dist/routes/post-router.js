@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const post_1 = require("../user_post/post");
+const upvote_1 = require("../user_post/upvote");
+const comments_1 = require("../user_post/comments");
+const router = (0, express_1.Router)();
+router.post('/createPost', post_1.createPost);
+router.delete('/deletePost/:id', post_1.deletePost);
+router.post('/updatePost', post_1.updatePost);
+router.get('/fetchAllPosts', post_1.getAllPosts);
+router.post('/upvote', upvote_1.toggleUpvote);
+router.post('/comments', comments_1.createComment);
+router.get('/comments/:id', comments_1.getCommentsByPost1);
+exports.default = router;
