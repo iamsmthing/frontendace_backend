@@ -129,7 +129,7 @@ const submitPeerReview = async (req, res) => {
             where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.peerReviews.userProgressId, userProgressId), (0, drizzle_orm_1.eq)(schema_1.peerReviews.reviewerId, reviewerId))
         });
         if (checkIfReviewedAlready) {
-            return res.json({ error: "You have already reviewed.can't review again" });
+            return res.json({ error: "You have already reviewed.can't review again", status: 500 });
         }
         const peerSubmission = await drizzle_1.db
             .insert(schema_1.peerReviews)
@@ -150,6 +150,24 @@ const submitPeerReview = async (req, res) => {
                 isCompleted: true,
                 completedAt: new Date()
             }).where((0, drizzle_orm_1.eq)(schema_1.userProgress.id, userProgressId));
+            // Get challenge score
+            const challengeData = await drizzle_1.db.query.challenges.findFirst({
+                where: (0, drizzle_orm_1.eq)(schema_1.challenges.id, challengeId)
+            });
+            console.log("challenge data1:", challengeData);
+            if (challengeData) {
+                console.log("challengeData2:", challengeData);
+                console.log(userProgressId, challengeData.score, challengeId);
+                const userScore = await drizzle_1.db.insert(schema_1.userScores).values({
+                    id: (0, uuid_1.v4)(),
+                    userId: userProgressId,
+                    score: challengeData.score,
+                    challengeId: challengeId,
+                }).returning();
+                console.log("userScore:", userScore);
+            }
+            //calculate the user's total score from userScores table
+            // const totalScore
         }
         if (peerSubmission) {
             return res
@@ -157,6 +175,7 @@ const submitPeerReview = async (req, res) => {
                 .json({
                 message: "Peer review submitted successfully",
                 peerSubmission,
+                status: 201
             });
         }
         console.log(checkIfReviewedAlready);
