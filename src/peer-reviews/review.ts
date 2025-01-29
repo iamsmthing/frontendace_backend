@@ -127,6 +127,11 @@ export const submitPeerReview = async (req: Request, res: Response) => {
   try {
     const { reviewerId, userProgressId, challengeId, comment, isApproved } =
       req.body;
+      const tokenUserId = extractUserId(req, res);
+      let verifiedReviewerId='';
+      if(reviewerId===tokenUserId){
+        verifiedReviewerId=tokenUserId;
+      }
 
     // Fetch the user who submitted this challenge
     const challengeSubmission = await db.query.userProgress.findFirst({
@@ -138,7 +143,7 @@ export const submitPeerReview = async (req: Request, res: Response) => {
     }
 
     // Prevent users from approving their own challenge
-    if (challengeSubmission.userId === reviewerId) {
+    if (challengeSubmission.userId === verifiedReviewerId) {
       return res
         .status(403)
         .json({ error: "You cannot approve your own challenge." });
@@ -149,7 +154,7 @@ export const submitPeerReview = async (req: Request, res: Response) => {
     const checkIfReviewedAlready = await db.query.peerReviews.findFirst({
       where: and(
         eq(peerReviews.userProgressId, userProgressId),
-        eq(peerReviews.reviewerId, reviewerId)
+        eq(peerReviews.reviewerId, verifiedReviewerId)
       ),
     });
     if (checkIfReviewedAlready) {
@@ -158,13 +163,14 @@ export const submitPeerReview = async (req: Request, res: Response) => {
         status: 500,
       });
     }
+    
 
     const peerSubmission = await db
       .insert(peerReviews)
       .values({
         id: uuidv4(),
         challengeId,
-        reviewerId,
+        reviewerId:verifiedReviewerId,
         userProgressId,
         comment,
         isApproved,
@@ -176,13 +182,13 @@ export const submitPeerReview = async (req: Request, res: Response) => {
         columns: {
           score: true
         },
-        where: eq(users.id, reviewerId)
+        where: eq(users.id, verifiedReviewerId)
       });
       
       if (reviewerScore) {
-        await db.update(users).set({ score: reviewerScore.score + 2 }).where(eq(users.id, reviewerId));
+        await db.update(users).set({ score: reviewerScore.score + 2 }).where(eq(users.id, verifiedReviewerId));
       } else {
-        console.error(`Reviewer score not found for user ID ${reviewerId}`);
+        console.error(`Reviewer score not found for user ID ${verifiedReviewerId}`);
       }
 
     const countApprovals = await db.query.peerReviews.findMany({
