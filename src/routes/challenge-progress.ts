@@ -1,12 +1,13 @@
 import { Router} from 'express';
 import { getAllProblemsWithCompletionStatus } from '../challenges/progress';
-import { markAsComplete } from '../challenges/challenge';
+import { fetchUserScores, markAsComplete } from '../challenges/challenge';
 
 
 const router = Router();
 
 router.post('/markAsComplete',markAsComplete);
 router.post('/getChallengesForUser',getAllProblemsWithCompletionStatus);
+router.get('/fetchLeaderBoardScore',fetchUserScores)
 
 export default router;
 
