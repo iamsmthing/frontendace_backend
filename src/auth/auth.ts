@@ -34,7 +34,8 @@ export const shield=async(req:Request,res:Response,next:NextFunction)=>{
         next();
         
     } catch (error) {
-        res.json(error);
+        console.log(error)
+        return res.status(401).json(error);
     }  
 
 }
